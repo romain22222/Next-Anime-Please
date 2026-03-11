@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "Next anime please",
+  "version": "1.2",
+  "description": "Add a shortcut to quickly updates the anime list and open the next one (Shift+Alt+PageUp)",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "commands": {
+    "next-anime": {
+      "suggested_key": {
+        "default": "Shift+Alt+PageUp"
+      },
+      "description": "Let's watch the next anime"
+    }
+  },
+  "background": {
+    "service_worker": "popup.js"
+  },
+  "permissions": ["bookmarks","activeTab","scripting","storage"],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'"
+  }
+}
