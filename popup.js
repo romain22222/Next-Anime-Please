@@ -115,7 +115,7 @@ function findClosestFavoriteInEnAttente(romaji, english, callback) {
     chrome.bookmarks.getTree((tree) => {
         let lookedNode = null;
         for (const node of tree[0].children[0].children) {
-            if (node.title === "en attente" && node.children) {
+            if (node.title === enAttenteFolder && node.children) {
                 lookedNode = node;
                 break;
             }
@@ -228,7 +228,7 @@ function addCurrentTabAnimeToList() {
             const weekDays = ['Dimanche','Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
             findClosestFavoriteInEnAttente(romajiName, englishName, (closestNode) => {
                 if (!closestNode) {
-                    alert('Aucun anime similaire trouvé dans les favoris "en attente". Ajout annulé.');
+                    alert('Aucun anime similaire trouvé dans les favoris "' + enAttenteFolder + '". Ajout annulé.');
                     return;
                 }
                 const closest = closestNode.title;
@@ -294,13 +294,14 @@ function getCurrentTabUrlAndRomajiPlusEnglishNamesInsidePage(callback) {
     });
 }
 
-const folderName = "animés à voir";
+const aVoirFolder = "animés à voir";
+const enAttenteFolder = "en attente";
 
 function oopsiePreviousAnime() {
     chrome.bookmarks.getTree((tree) => {
         let lookedNode = null;
         for (const node of tree[0].children[0].children) {
-            if (node.title === folderName && node.children) {
+            if (node.title === aVoirFolder && node.children) {
                 lookedNode = node;
                 break;
             }
