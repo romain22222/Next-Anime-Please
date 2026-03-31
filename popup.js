@@ -34,8 +34,7 @@ function newUrl(firstAnime, episodeNumber) {
     if (animeUrl.includes("voiranime.com")) {
         // replace the old domain with the new one and continue
         animeUrl = animeUrl.replace('v6.voiranime.com', 'voiranime.tv');
-    }
-    if (animeUrl.includes('voiranime.tv')) {
+    } else if (animeUrl.includes('voiranime.tv')) {
         // replace the old domain with the new one and continue
         animeUrl = animeUrl.replace('voiranime.tv', 'voir-anime.to');
     }
