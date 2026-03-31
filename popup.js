@@ -22,23 +22,27 @@ function nextAnime() {
             }, () => {
                 // Open the new first anime in the current tab
                 chrome.tabs.query({active: true, currentWindow: true}, () => {
-                    chrome.tabs.create({url: lookedNode.children[1].url});
+                    chrome.tabs.create({url: fixDomain(lookedNode.children[1].url)});
                 });
             });
         });
     });
 }
 
+function fixDomain(url) {
+    if (url.includes("voiranime.com")) {
+        // replace the old domain with the new one and continue
+        url = url.replace('v6.voiranime.com', 'voiranime.tv');
+    }
+    if (url.includes('voiranime.tv')) {
+        // replace the old domain with the new one and continue
+        url = url.replace('voiranime.tv', 'voir-anime.to');
+    }
+    return url;
+}
+
 function newUrl(firstAnime, episodeNumber) {
-    let animeUrl = firstAnime.url;
-    if (animeUrl.includes("voiranime.com")) {
-        // replace the old domain with the new one and continue
-        animeUrl = animeUrl.replace('v6.voiranime.com', 'voiranime.tv');
-    }
-    if (animeUrl.includes('voiranime.tv')) {
-        // replace the old domain with the new one and continue
-        animeUrl = animeUrl.replace('voiranime.tv', 'voir-anime.to');
-    }
+    let animeUrl = fixDomain(firstAnime.url);
     if (animeUrl.includes('voir-anime.to')
         || animeUrl.includes('otakufr.co')
         || animeUrl.includes('mavanimes.co')
