@@ -30,8 +30,16 @@ function nextAnime() {
 }
 
 function newUrl(firstAnime, episodeNumber) {
-    const animeUrl = firstAnime.url;
-    if (animeUrl.includes('voiranime.com')
+    let animeUrl = firstAnime.url;
+    if (animeUrl.includes("voiranime.com")) {
+        // replace the old domain with the new one and continue
+        animeUrl = animeUrl.replace('v6.voiranime.com', 'voiranime.tv');
+    }
+    if (animeUrl.includes('voiranime.tv')) {
+        // replace the old domain with the new one and continue
+        animeUrl = animeUrl.replace('voiranime.tv', 'voir-anime.to');
+    }
+    if (animeUrl.includes('voiranime.tv')
         || animeUrl.includes('otakufr.co')
         || animeUrl.includes('mavanimes.co')
         || animeUrl.includes('v3.voiranime.ws')
