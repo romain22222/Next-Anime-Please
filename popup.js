@@ -22,43 +22,78 @@ function nextAnime() {
             }, () => {
                 // Open the new first anime in the current tab
                 chrome.tabs.query({active: true, currentWindow: true}, () => {
-                    chrome.tabs.create({url: fixDomain(lookedNode.children[1].url)});
+                    chrome.tabs.create({url: normalizeMigratingDomain(lookedNode.children[1].url)});
                 });
             });
         });
     });
 }
 
-function fixDomain(url) {
-    if (url.includes("voiranime.com")) {
-        // replace the old domain with the new one and continue
-        url = url.replace('v6.voiranime.com', 'voiranime.tv');
+// Keep domains ordered from oldest to newest so migration only needs appending the latest one.
+const migratableDomainChain = [
+    'v6.voiranime.com',
+    'voiranime.com',
+    'voiranime.tv',
+    'voir-anime.to',
+    'voiranime.cx'
+];
+
+const twoDigitEpisodeDomains = [
+    migratableDomainChain[migratableDomainChain.length - 1],
+    'otakufr.co',
+    'mavanimes.co',
+    'v3.voiranime.ws'
+];
+
+function parseUrl(url) {
+    try {
+        return new URL(url);
+    } catch (_) {
+        return null;
     }
-    if (url.includes('voiranime.tv')) {
-        // replace the old domain with the new one and continue
-        url = url.replace('voiranime.tv', 'voir-anime.to');
+}
+
+function isMatchingHostname(hostname, domain) {
+    return hostname === domain || hostname.endsWith('.' + domain);
+}
+
+function isUrlOnDomains(url, domains) {
+    const parsedUrl = parseUrl(url);
+    if (!parsedUrl) {
+        return false;
     }
-    return url;
+    return domains.some((domain) => isMatchingHostname(parsedUrl.hostname, domain));
+}
+
+function normalizeMigratingDomain(url) {
+    const parsedUrl = parseUrl(url);
+    if (!parsedUrl) {
+        return url;
+    }
+
+    const hasMigratableDomain = migratableDomainChain.some((domain) => isMatchingHostname(parsedUrl.hostname, domain));
+    if (!hasMigratableDomain) {
+        return url;
+    }
+
+    parsedUrl.hostname = migratableDomainChain[migratableDomainChain.length - 1];
+    return parsedUrl.toString();
 }
 
 function newUrl(firstAnime, episodeNumber) {
-    let animeUrl = fixDomain(firstAnime.url);
-    if (animeUrl.includes('voir-anime.to')
-        || animeUrl.includes('otakufr.co')
-        || animeUrl.includes('mavanimes.co')
-        || animeUrl.includes('v3.voiranime.ws')
-    ) {
+    let animeUrl = normalizeMigratingDomain(firstAnime.url);
+    if (isUrlOnDomains(animeUrl, twoDigitEpisodeDomains)) {
         const animeUrlSplitted = animeUrl.split('-');
         return animeUrlSplitted.slice(0, animeUrlSplitted.length - 2).join('-') + '-' + (episodeNumber > 9 ? episodeNumber : '0' + episodeNumber) + '-' + animeUrlSplitted[animeUrlSplitted.length - 1];
     }
-    if (animeUrl.includes('french-anime.com') || animeUrl.includes('anime-sama.fr')) {
+    if (isUrlOnDomains(animeUrl, ['french-anime.com', 'anime-sama.fr'])) {
         return animeUrl;
     }
-    if (animeUrl.includes('vostanime.fr')) {
+    if (isUrlOnDomains(animeUrl, ['vostanime.fr'])) {
         const animeUrlSplitted = animeUrl.split('-');
         return animeUrlSplitted.slice(0, animeUrlSplitted.length - 3).join('-') + '-' + episodeNumber + '-' + animeUrlSplitted.slice(animeUrlSplitted.length - 2).join('-');
     }
-    if (animeUrl.includes('v3.voiranime1.fr')) {
+    if (isUrlOnDomains(animeUrl, ['v3.voiranime1.fr'])) {
         const animeUrlSplitted = animeUrl.split('-');
         return animeUrlSplitted.slice(0, animeUrlSplitted.length - 1).join('-') + '-' + episodeNumber + '/';
     }
